@@ -1,9 +1,6 @@
 #!/usr/bin/python
 
-import botlib, random, re, sys
-from cowsay import cowsay
-from bs4 import BeautifulSoup
-from urllib import urlopen
+import botlib, random
 
 class callback(botlib.callback):
 	def msg(self, bot, user, channel, msg):
