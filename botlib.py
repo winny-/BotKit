@@ -10,7 +10,7 @@ def gen_rand_username():
 
 class connection(object):
 	def __init__(self, server, port, channels, nick, cb, commands, username = "", password = "", verboose = False):
-		self.server, self.port, self.channels, self.nick, self.callback, self.commands, self.verboose = server, port, channels, nick, cb, commands, verboose
+		self.server, self.port, self.channels, self.nick, self.callback, self.commands, self.username, self.password, self.verboose = server, port, channels, nick, cb, commands, username, password, verboose
 		self.r = compile('^(?:[:](\S+)!)?(\S+)(?: (?!:)(.+?))(?: (?!:)(.+?))?(?: [:](.+))?$')
 		self.running = True
 
@@ -43,8 +43,8 @@ class connection(object):
 				raise 'ConnectError', (self.server, self.port, 'EOFBefore001')
 
 		#identify with the NICKSERV if needed
-		if username != "":
-			self.msg('NICKSERV', 'IDENTIFY %s %s' % (username, password))
+		if self.username != "":
+			self.msg('NICKSERV', 'IDENTIFY %s %s' % (self.username, self.password))
 
 		# Join the channels.
 		for channel in self.channels:
