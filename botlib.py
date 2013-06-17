@@ -2,13 +2,14 @@
 from random import randrange
 from re import compile
 from socket import AF_INET, SOCK_STREAM, socket
-import inspect
+from sqlite3 import connect
+import inspect, sys, os
 
 def gen_rand_username():
 	return ''.join([chr(randrange(ord('a'), ord('z'))) for i in range(8)])
 
-class con:
-	def __init__(self, server, port, channels, nick, cb, commands, verboose = False):
+class connection(object):
+	def __init__(self, server, port, channels, nick, cb, commands, username = "", password = "", verboose = False):
 		self.server, self.port, self.channels, self.nick, self.callback, self.commands, self.verboose = server, port, channels, nick, cb, commands, verboose
 		self.r = compile('^(?:[:](\S+)!)?(\S+)(?: (?!:)(.+?))(?: (?!:)(.+?))?(?: [:](.+))?$')
 		self.running = True
@@ -40,6 +41,10 @@ class con:
 				break
 			elif line == '':
 				raise 'ConnectError', (self.server, self.port, 'EOFBefore001')
+
+		#identify with the NICKSERV if needed
+		if username != "":
+			self.msg('NICKSERV', 'IDENTIFY %s %s' % (username, password))
 
 		# Join the channels.
 		for channel in self.channels:
@@ -76,8 +81,12 @@ class con:
 				self.callback.part(self, gr.group(1), gr.group(4), gr.group(5))
 			elif(gr.group(3) == 'JOIN'):
 				self.callback.join(self, gr.group(1), gr.group(4))
-			else:
-				self.callback.raw(self, line)
+			elif(gr.group(3) == 'QUIT'):
+				self.callback.quit(self, gr.group(1), gr.group(4), gr.group(5))
+			elif(gr.group(2) == 'NICK'):
+				self.callback.nick(self, gr.group(1), gr.group(3))
+
+			self.callback.raw(self, line)
 
 	def msg(self, what, msg):
 		for line in str(msg).split('\n'):
@@ -88,6 +97,15 @@ class con:
 	
 	def quit(self, reason="Bot shutting down"):
 		self.lsend('QUIT :'+str(reason))
+		sys.exit()
+
+	def nick(self, nick):
+		self.lsend('NICK :'+nick)
+
+	def names(self, channel):
+		self.lsend('NAMES '+channel)
+		return self.lrecv().split(':')[2].split()
+
 
 class callback(object):
 	def msg(self, bot, user, channel, msg):
@@ -100,10 +118,18 @@ class callback(object):
 
 	def join(self, bot, user, channel):
 		#print user+" joined "+channel
+		pass		
+
+	def quit(self, bot, user, channel, message):
+		#print user+" joined "+channel
 		pass
 
 	def part(self, bot, user, channel, reason):
 		#print user+" left "+channel+": "+reason
+		pass
+
+	def nick(self, bot, oldnick, newnick):
+		#print oldnick+" is now know as "+newnick
 		pass
 
 	def raw(self, bot, data):
@@ -111,7 +137,38 @@ class callback(object):
 		pass
 
 class commands(object):
-	def _parseArgs(self, args):
+	def _parseArgs(self, args, parseInt=True):
 		c = compile(r"""("[^"]*")|([^\s]+)""").findall(args)
-		return [int(row[1]) if row[1].replace('-','').isdigit() else row[1] for row in c]
+		if parseInt:
+			return [int(row[1]) if row[1].replace('-','').isdigit() else row[1] for row in c]
+		else: 
+			return c
 
+class settings(object):
+	def __init__(self, filename):
+		if not os.path.isfile(filename):
+			tmpcon = connect(filename)
+			print "Database file not found. Creating one..."
+			c = tmpcon.cursor()
+			c.execute("CREATE TABLE prefs(nick VARCHAR, setting VARCHAR, value VARCHAR, PRIMARY KEY(nick, setting));")
+			tmpcon.commit()
+			c.close()
+			print "Done"
+		self.conn = connect(filename)
+
+	def get(self, nick, pref, default):
+		c = self.conn.cursor()
+		for row in c.execute("SELECT value FROM prefs WHERE nick = ? AND setting = ?", (nick, pref)):
+			c.close()
+			return row[0]
+		c.execute("INSERT INTO prefs (nick, setting, value) VALUES (?,?,?)", (nick, pref, default))
+		self.conn.commit()
+		c.close()
+		return default
+
+	def set(self, nick, pref, value):
+		sql = """INSERT OR REPLACE INTO prefs (nick, setting, value) VALUES (?,?,?)"""
+		c = self.conn.cursor()
+		c.execute(sql, (nick, pref, value))
+		self.conn.commit()
+		c.close()
