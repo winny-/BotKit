@@ -3,7 +3,7 @@ from random import randrange
 from re import compile
 from socket import AF_INET, SOCK_STREAM, socket
 from sqlite3 import connect
-import inspect, sys, os
+import inspect, os
 
 def gen_rand_username():
 	return ''.join([chr(randrange(ord('a'), ord('z'))) for i in range(8)])
@@ -73,7 +73,7 @@ class connection(object):
 					for method in inspect.getmembers(self.commands, predicate=inspect.ismethod):
 						cmd = method[0]
 						func = method[1]
-						if (gr.group(5)[:(len(cmd)+1)] == "!"+cmd and cmd[:1] != "_"):
+						if ((gr.group(5)+' ')[:(len(cmd)+2)] == "!"+cmd+' ' and cmd[:1] != "_"):
 							func(self, gr.group(1), gr.group(4), gr.group(5)[(len(cmd)+2):])
 				else:
 					self.callback.msg(self, gr.group(1), gr.group(4), gr.group(5))
@@ -97,7 +97,7 @@ class connection(object):
 	
 	def quit(self, reason="Bot shutting down"):
 		self.lsend('QUIT :'+str(reason))
-		sys.exit()
+		self.running = False
 
 	def nick(self, nick):
 		self.lsend('NICK :'+nick)
@@ -160,15 +160,15 @@ class settings(object):
 		c = self.conn.cursor()
 		for row in c.execute("SELECT value FROM prefs WHERE nick = ? AND setting = ?", (nick, pref)):
 			c.close()
-			return row[0]
+			return int(row[0]) if row[0].replace('-','').isdigit() else row[0]
 		c.execute("INSERT INTO prefs (nick, setting, value) VALUES (?,?,?)", (nick, pref, default))
 		self.conn.commit()
 		c.close()
-		return default
+		return default 
 
 	def set(self, nick, pref, value):
 		sql = """INSERT OR REPLACE INTO prefs (nick, setting, value) VALUES (?,?,?)"""
 		c = self.conn.cursor()
-		c.execute(sql, (nick, pref, value))
+		c.execute(sql, (nick, pref, str(value)))
 		self.conn.commit()
 		c.close()
