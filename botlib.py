@@ -89,7 +89,7 @@ class connection(object):
 			self.callback.raw(self, line)
 
 	def msg(self, what, msg):
-		for line in str(msg).split('\n'):
+		for line in str(msg).replace('\r','').split('\n'):
 			self.lsend('PRIVMSG '+what+' :'+line)
 
 	def action(self, what, msg):
