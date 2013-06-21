@@ -9,8 +9,8 @@ def gen_rand_username():
 	return 
 
 class connection(object):
-	def __init__(self, server, port, channels, nick, cb, commands, username = "", password = "", verboose = False):
-		self.server, self.port, self.channels, self.nick, self.callback, self.commands, self.username, self.password, self.verboose = server, port, channels, nick, cb, commands, username, password, verboose
+	def __init__(self, server, port, channels, nick, cb, commands, password="", channelpasswd="", verboose=False):
+		self.server, self.port, self.channels, self.nick, self.callback, self.commands, self.password, self.verboose = server, port, channels, nick, cb, commands, password, verboose
 		self.r = compile('^(?:[:](\S+)!)?(\S+)(?: (?!:)(.+?))(?: (?!:)(.+?))?(?: [:](.+))?$')
 		self.running = True
 
@@ -33,18 +33,26 @@ class connection(object):
 		self.lsend('USER %s 0 0 :bot' % (''.join([chr(randrange(ord('a'), ord('z'))) for i in range(8)])))
 		self.lsend('NICK %s 0' % self.nick)
 
+		realNick = self.nick
 		# Wait for the 001 status reply.
 		while 1:
 			line = self.lrecv()
 			if(self.verboose): print line
 			if compile(':[^ ]+ 001 ').match(line):
 				break
+			elif 'Nickname is already in use' in line: 
+				# Change username if taken
+				realNick = realNick+'_'
+				self.lsend('NICK %s 0' % realNick)
 			elif line == '':
 				raise 'ConnectError', (self.server, self.port, 'EOFBefore001')
 
+
 		#identify with the NICKSERV if needed
-		if self.username != "":
-			self.msg('NICKSERV', 'IDENTIFY %s %s' % (self.username, self.password))
+		if self.password != "" and realNick != self.nick:
+			self.msg('NICKSERV', 'GHOST %s %s' % (self.nick, self.password))
+		if self.password != "":
+			self.msg('NICKSERV', 'IDENTIFY %s' % self.password)
 
 		# Join the channels.
 		for channel in self.channels:
@@ -90,7 +98,7 @@ class connection(object):
 
 	def msg(self, what, msg):
 		for line in str(msg).replace('\r','').split('\n'):
-			self.lsend('PRIVMSG %S :' % (what, line))
+			self.lsend('PRIVMSG %s :%s' % (what, line))
 
 	def action(self, what, msg):
 		self.lsend('PRIVMSG %s :\001ACTION %s\001' % (what, str(msg)))
