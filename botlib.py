@@ -6,7 +6,7 @@ from sqlite3 import connect
 import inspect, os
 
 def gen_rand_username():
-	return ''.join([chr(randrange(ord('a'), ord('z'))) for i in range(8)])
+	return 
 
 class connection(object):
 	def __init__(self, server, port, channels, nick, cb, commands, username = "", password = "", verboose = False):
@@ -30,8 +30,8 @@ class connection(object):
 		self.sock = socket(AF_INET, SOCK_STREAM)
 		self.sock.connect((self.server, self.port))
 
-		self.lsend('USER ' + gen_rand_username() + ' 0 0 :bot')
-		self.lsend('NICK ' + self.nick + ' 0')
+		self.lsend('USER %s 0 0 :bot' % (''.join([chr(randrange(ord('a'), ord('z'))) for i in range(8)])))
+		self.lsend('NICK %s 0' % self.nick)
 
 		# Wait for the 001 status reply.
 		while 1:
@@ -90,10 +90,10 @@ class connection(object):
 
 	def msg(self, what, msg):
 		for line in str(msg).replace('\r','').split('\n'):
-			self.lsend('PRIVMSG '+what+' :'+line)
+			self.lsend('PRIVMSG %S :' % (what, line))
 
 	def action(self, what, msg):
-		self.lsend('PRIVMSG '+what+' :\001ACTION '+str(msg)+'\001')
+		self.lsend('PRIVMSG %s :\001ACTION %s\001' % (what, str(msg)))
 	
 	def quit(self, reason="Bot shutting down"):
 		self.lsend('QUIT :'+str(reason))
@@ -167,8 +167,7 @@ class settings(object):
 		return default 
 
 	def set(self, nick, pref, value):
-		sql = """INSERT OR REPLACE INTO prefs (nick, setting, value) VALUES (?,?,?)"""
 		c = self.conn.cursor()
-		c.execute(sql, (nick, pref, str(value)))
+		c.execute("INSERT OR REPLACE INTO prefs (nick, setting, value) VALUES (?,?,?)", (nick, pref, str(value)))
 		self.conn.commit()
 		c.close()
