@@ -51,6 +51,7 @@ class connection(object):
 		#identify with the NICKSERV if needed
 		if self.password != "" and realNick != self.nick:
 			self.msg('NICKSERV', 'GHOST %s %s' % (self.nick, self.password))
+			self.lsend('NICK :' + self.nick)
 		if self.password != "":
 			self.msg('NICKSERV', 'IDENTIFY %s' % self.password)
 
