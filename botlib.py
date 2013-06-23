@@ -3,16 +3,21 @@ from random import randrange
 from re import compile
 from socket import AF_INET, SOCK_STREAM, socket
 from sqlite3 import connect
+from unidecode import unidecode
 import inspect, os
-
-def gen_rand_username():
-	return 
 
 class connection(object):
 	def __init__(self, server, port, channels, nick, cb, commands, password="", channelpasswd="", verboose=False):
 		self.server, self.port, self.channels, self.nick, self.callback, self.commands, self.password, self.verboose = server, port, channels, nick, cb, commands, password, verboose
 		self.r = compile('^(?:[:](\S+)!)?(\S+)(?: (?!:)(.+?))(?: (?!:)(.+?))?(?: [:](.+))?$')
 		self.running = True
+
+	def _clean_bad_chars(self, strtoclean):
+		if strtoclean != None:
+			strcleaned = ''.join([x for x in strtoclean if ord(x) < 128])
+			return strcleaned.strip()
+		else:
+			return ""
 
 	def lsend(self, s):
 		self.sock.send(s + '\r\n')
@@ -24,7 +29,10 @@ class connection(object):
 			if c == '':  # connection closed
 				break
 			s += c
-		return s.strip('\r\n')
+		line = unidecode(s).strip('\r\n')
+		if(self.verboose): 
+			print line
+		return line
 
 	def go(self):
 		self.sock = socket(AF_INET, SOCK_STREAM)
@@ -51,7 +59,13 @@ class connection(object):
 		#identify with the NICKSERV if needed
 		if self.password != "" and realNick != self.nick:
 			self.msg('NICKSERV', 'GHOST %s %s' % (self.nick, self.password))
-			self.lsend('NICK :' + self.nick)
+			while 1:
+				line = self.lrecv().lower()
+				if 'has been ghosted' in line:
+					self.lsend('NICK %s 0' % self.nick)
+					break
+				elif 'invalid password for' in line:
+					break			
 		if self.password != "":
 			self.msg('NICKSERV', 'IDENTIFY %s' % self.password)
 
@@ -61,7 +75,6 @@ class connection(object):
 
 		while self.running:
 			line = self.lrecv()
-			if(self.verboose): print line
 
 			if line == '':
 				raise 'ConnectionClose', (self.server, self.port)
