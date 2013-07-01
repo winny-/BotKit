@@ -110,7 +110,7 @@ class connection(object):
 
 	def action(self, what, msg):
 		self.lsend('PRIVMSG %s :\001ACTION %s\001' % (what, str(msg)))
-	
+
 	def quit(self, reason="Bot shutting down"):
 		self.lsend('QUIT :'+str(reason))
 		self.running = False
