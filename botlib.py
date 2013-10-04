@@ -130,7 +130,6 @@ class connection(object):
         return self.lrecv().split(':')[2].split()
 
     def list(self):
-        #:hobana.freenode.net 322 bas__ #modzer0 7 :no swimming in the cheese
         self.lsend('LIST')
         channels = []
         while 1:
