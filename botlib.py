@@ -7,8 +7,8 @@ from sqlite3 import connect
 import inspect, os
 
 class connection(object):
-    def __init__(self, server, port, channels, nick, cb, commands, password="", channelpasswd="", verboose=False):
-        self.server, self.port, self.channels, self.nick, self.callback, self.commands, self.password, self.verboose = server, port, channels, nick, cb, commands, password, verboose
+    def __init__(self, server, port, channels, nick, cb, commands, password="", channelpasswd="", verbose=False):
+        self.server, self.port, self.channels, self.nick, self.callback, self.commands, self.password, self.verbose = server, port, channels, nick, cb, commands, password, verbose
         self.r = compile('^(?:[:](\S+)!)?(\S+)(?: (?!:)(.+?))(?: (?!:)(.+?))?(?: [:](.+))?$')
         self.running = True
 
@@ -23,7 +23,7 @@ class connection(object):
                 break
             s += c
         line = s.strip('\r\n')
-        if(self.verboose):
+        if(self.verbose):
             print(line)
         return line
 
@@ -39,7 +39,7 @@ class connection(object):
         # Wait for the 001 status reply.
         while 1:
             line = self.lrecv()
-            if(self.verboose):
+            if(self.verbose):
                 print(line)
             if compile(':[^ ]+ 001 ').match(line):
                 break
@@ -74,7 +74,7 @@ class connection(object):
                 raise 'ConnectionClose', (self.server, self.port)
 
             elif line[:6] == 'PING :':
-                if(self.verboose): print '  PONG :' + line[6:]
+                if(self.verbose): print '  PONG :' + line[6:]
                 self.lsend('PONG :' + line[6:])
                 continue
 
