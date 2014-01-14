@@ -13,20 +13,13 @@ class callback(botlib.callback):
 
 class commands(botlib.commands):
 	def eat(self, bot, user, channel, args):
-		bot.action(channel, 'eats a '+settings.get(user, 'food', 'banana'))
-
-	def food(self, bot, user, channel, args):
-		settings.set(user, 'food', args)
-
-	def add(self, bot, user, channel, args):
-		parsed = self._parseArgs(args)
-		bot.msg(channel, parsed[0] + parsed[1])
+		bot.action(channel, 'eats a carrot')
+		bot.msg(channel, 'Eh, what\'s up doc?')
 
 	def helloworld(self, bot, user, channel, args):
 		bot.msg(channel, "Hello World!")
 
 
-settings = botlib.settings('bot.db')
 irc = botlib.connection('irc.freenode.net', 6667, ['#secrettest'], 'testbot9000', callback(), commands())
 irc.go()
 
