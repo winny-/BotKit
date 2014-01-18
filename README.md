@@ -1,4 +1,4 @@
-Simple-Python-Bot-Library
+BotKit
 =========================
 
-It's pretty darn simple
+WIP. Documentation etc will be avalible soon
