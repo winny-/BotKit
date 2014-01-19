@@ -19,7 +19,7 @@ class User(object):
     """
     A parsed user
     """
-    def __init__(self, nick, host, user, mode, channels):
+    def __init__(self, nick, host, user, mode, realname):
         """
         @type nick: str
         @type host: str
@@ -31,11 +31,11 @@ class User(object):
         @param host: Hostmask
         @param user: Username
         @param mode: Usermodes
-        @param channels: Channels the user is in
+        @param realname: Real name
         """
 
         self.nick = nick
         self.host = host
         self.user = user
         self.mode = mode
-        self.channels = channels
+        self.realname = realname
