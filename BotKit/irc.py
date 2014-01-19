@@ -12,9 +12,39 @@ from .decorators import getcallback, getcommand
 
 class BotKit(object):
     def __init__(self, **kwargs):
+        """
+        @param host: The server ip/host (default '127.0.0.1')
+        @param port: The server port (default 6667)
+        @param ssl: Should ssl be used (default False)
+        @param nickname: Bot nickname (default 'testbot')
+        @param nickpass: Bot password to authenticate with the nickserv with (default False)
+        @param user: Bot user (default 'bot')
+        @param realname: Bot realname (default 'bot')
+        @param channels: Autoconnect channels (default [])
+        @param logfile: desired logfile or False
+        @param verbose: Verbose output (default False)
+        @param debug: Debug output (default False)
+        @param prefix: Command prefix (default ':')
+        @param blocking: Use blocking callbacks (default False)
+
+        @type host: str
+        @type port: int
+        @type ssl: bool
+        @type nickname: str
+        @type nickpass: str
+        @type user: str
+        @type realname: str
+        @type channels: list
+        @type logfile: str
+        @type verbose: bool
+        @type debug: bool
+        @type prefix: str
+        @type blocking: bool
+        """
+        self._buffer = []
         self.running = False
         self._sock = None
-        self.logger = ColoredLogger('BotKit', kwargs.get('logfile', False))
+        self.logger = ColoredLogger('BotKit', kwargs.get('logfile', False) or False)
 
         # Connection properties
         self._host = kwargs.get('host', '127.0.0.1')
@@ -22,11 +52,11 @@ class BotKit(object):
         self._ssl = kwargs.get('ssl', False)
 
         self._nickname = kwargs.get('nickname', 'testbot')
-        self._nickpass = kwargs.get('nickpass', False)
+        self._nickpass = kwargs.get('nickpass', False) or False
         self._user = kwargs.get('user', 'bot')
         self._realname = kwargs.get('realname', 'bot')
 
-        self._channels = kwargs.get('channels', '')
+        self._channels = kwargs.get('channels', [])
         if type(self._channels) == str:
             self._channels = self._channels.split(',')
         self._verbose = kwargs.get('verbose', False)
@@ -37,6 +67,11 @@ class BotKit(object):
         self._more = ""
 
     def run(self):
+        """
+        Starts the bot
+
+        @return: None
+        """
         #create the connection
         self.logger.info("Connecting to %s:%i" % (self._host, self._port))
         if self._ssl:
@@ -99,8 +134,8 @@ class BotKit(object):
             self.join(self._channels)
 
         #main loop
-        while True:
-            line = self.receive()
+        while self.running:
+            line = self._buffer.pop(0) if self._buffer == 0 else self.receive()
             for c in getcallback(line.command, True):
                 self._callback(c, line)
 
@@ -168,6 +203,12 @@ class BotKit(object):
         return line
 
     def receive(self):
+        """
+        Receive one line
+
+        @rtype : Message
+        @return: Message object
+        """
         line = self._lrecv()[1:]
         return Message(line)
 
@@ -176,62 +217,146 @@ class BotKit(object):
     # Bot info
     ######
     def getnick(self):
+        """
+        Gets the current nickname
+
+        @rtype: str
+        @return: Current nickname
+        """
         return self._nickname
 
     ######
     # Server commands
     ######
     def user(self, user, realname):
+        """
+        Sends user info to the server
+
+        @type user: str
+        @type realname: str
+        @param user: username
+        @param realname: Real name
+        """
         self._lsend("USER %s 0 0 :%s" % (user, realname))
 
     def msg(self, what, msg):
+        """
+        Sends an irc message
+
+        @type what: str
+        @type msg: str
+        @param what: Destination
+        @param msg: Message text
+        """
         for line in str(msg).replace('\r', '').split('\n'):
             self._lsend('PRIVMSG %s :%s' % (what, line))
 
     def action(self, what, msg):
+        """
+        Sends an irc action
+
+        @type what: str
+        @type msg: str
+        @param what: Destination
+        @param msg: Action text
+        """
         self._lsend('PRIVMSG %s :\001ACTION %s\001' % (what, str(msg)))
 
     def join(self, channel):
+        """
+        Make the bot join a channel or multiple channels
+
+        @type channel: str
+        @type channel: list
+        @param channel: Channel(s) to join
+        """
         if type(channel) == list:
             channel = ','.join(channel)
+        channel = channel.split()[0].replace('\n', '')
         self.logger.info("Joining " + channel)
-        self._lsend('JOIN ' + channel.replace('\n', ''))
+        self._lsend('JOIN ' + channel)
 
     def part(self, channel, reason=" "):
+        """
+        Makes the bot leave(part) a channel
+
+        @type channel: str
+        @type reason: str
+        @param channel: The channel that will be left
+        @param reason: Reason for leaving
+        """
         self.logger.info("Parting from channel %s: %s"% (channel, str(reason.replace('\n', ''))))
         self._lsend('PART %s :%s' % (channel, str(reason.replace('\n', ''))))
 
     def quit(self, reason="Bot shutting down"):
+        """
+        Disconnect from the irc server
+
+        @param reason: Quit reason
+        """
         self.logger.info("Shutting down: " + reason)
         self._lsend('QUIT :' + str(reason.replace('\n', '')))
         self.running = False
 
     def nick(self, nick):
+        """
+        Set the new nickname for the bot
+
+        @type nick: str
+        @param nick: Nickname
+        """
         self._lsend('NICK %s 0' % nick.replace('\n', ''))
         self._nickname = nick.replace('\n', '')
 
     def names(self, channel):
+        """
+        Returns a list of users in the specified channel
+
+        @todo: Redo the entire function
+        @param channel:
+        @return:
+        """
         self._lsend('NAMES ' + channel.replace('\n', ''))
         return self._lrecv().split(':')[2].split()
 
-    def notice(self, what, message):
-        self._lsend('NOTICE %s :%s' % (what, message))
+    def notice(self, target, message):
+        """
+        @type target: str
+        @type message: str
+        @param target: Target
+        @param message: Notice message
+        """
+        self._lsend('NOTICE %s :%s' % (target, message))
 
     def who(self, who):
+        """
+        Returns a user object with info about the user
+
+        @type who: str
+        @param who: User
+        @return: User object
+        @rtype: User
+        """
         self._lsend('WHO %s' % (who.split()[0]))
         resp = ""
         while not "352" in resp:
             resp = self._lrecv()
+            self._buffer.append(Message(resp[1:]))
+        self._buffer.pop()
         match = re.match(':\S+ \d+ \S+ \S+ ~(\S+) (\S+) \* (\S+) (\S+) :\d+ (\S+)', resp)
-        return {
-            "user": match.group(1),
-            "host": match.group(2),
-            "nick": match.group(3),
-            "mode": match.group(4),
-            "name": match.group(5)
-        }
+        return User(
+            match.group(3),
+            match.group(2),
+            match.group(1),
+            match.group(4),
+            match.group(5)
+        )
 
     def list(self):
+        """
+        @todo: Redo function, implement buffer
+        @return: List of channels
+        """
         self._lsend('LIST')
         channels = []
         while 1:
@@ -251,10 +376,19 @@ class BotKit(object):
     #####
     # usefull
     #####
-    def SetMore(self, s):
-        self._more = s
+    def SetMore(self, text):
+        """
+        @todo migrate
+        @param text:
+        """
+        self._more = text
 
     def GetMore(self):
+        """
+        @todo: migrate
+        @return: stored more text
+        @rtype: str
+        """
         ret = self._more
-        more = ""
+        self._more = ""
         return ret
