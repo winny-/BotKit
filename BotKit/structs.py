@@ -25,7 +25,7 @@ class User(object):
         @type host: str
         @type user: str
         @type mode: str
-        @type channels: list
+        @type realname: str
 
         @param nick: Nickname
         @param host: Hostmask

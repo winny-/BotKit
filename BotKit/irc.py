@@ -206,7 +206,7 @@ class BotKit(object):
         """
         Receive one line
 
-        @rtype : Message
+        @rtype: Message
         @return: Message object
         """
         line = self._lrecv()[1:]
@@ -313,8 +313,9 @@ class BotKit(object):
         Returns a list of users in the specified channel
 
         @todo: Redo the entire function
-        @param channel:
-        @return:
+        @param channel: target
+        @return: list of users
+        @rtype: list
         """
         self._lsend('NAMES ' + channel.replace('\n', ''))
         return self._lrecv().split(':')[2].split()
