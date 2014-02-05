@@ -119,7 +119,7 @@ class BotKit(object):
                 response = self.receive()
                 if response.command != "NOTICE":
                     continue
-                if 'accepted' in response.trailing:
+                if 'accepted' in response.trailing or 'identified' in response.trailing:
                     self.logger.info(response.trailing)
                     break
                 elif "Your nick isn't registered" in response.trailing:
