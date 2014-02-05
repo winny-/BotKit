@@ -29,13 +29,13 @@ class admin(object):
         with open(self.adminfile, 'w') as f:
             f.write(', '.join(self._admins))
 
-    def addadmin(self, user):
+    def add(self, user):
         user = user.lower()
         if not user in self._admins:
             self._admins.append(user)
             self._save()
 
-    def removeadmin(self, user):
+    def remove(self, user):
         user = user.lower()
         if user in self._admins:
             self._admins = [a for a in self._admins if a != user]
