@@ -8,7 +8,7 @@ import traceback
 from .log import ColoredLogger
 from .structs import *
 from .decorators import getcallback, getcommand
-
+from .admin import admin
 
 class BotKit(object):
     def __init__(self, **kwargs):
@@ -179,8 +179,16 @@ class BotKit(object):
             self._invoke(c, self, *args)
 
     def _command(self, cmd, *args):
+        adm = admin()
         for c in getcommand(cmd):
-            self._invoke(c['method'], self, *args)
+            if c['restricted'] and not adm.isadmin(args[1]):
+                self.msg(args[0], "I'm sorry %s. I can't let you do that" % args[1])
+                self.logger.info("%s tried to use the command %s but is not an admin" % (args[1], cmd))
+            elif c['restricted'] and adm.isadmin(args[1]) and not 'r' in self.who(args[1]).mode:
+                self.msg(args[0], "%s: You must be authenticated to do that" % args[1])
+                self.logger.info("%s tried to use the command %s but is not authenticated" % (args[1], cmd))
+            else:
+                self._invoke(c['method'], self, *args)
 
     def _lsend(self, s):
         if self._verbose:
@@ -376,7 +384,7 @@ class BotKit(object):
         return channels
 
     #####
-    # usefull
+    # usefull and TODO remove
     #####
     def SetMore(self, text):
         """
