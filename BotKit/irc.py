@@ -94,7 +94,8 @@ class BotKit(object):
             elif response.command == '433':
                 self.nick(self._nickname + "_")
         self.logger.info("Connected: %s" % response.trailing)
-
+        self.running = True
+        
         if self._nickpass is not False:
             if preferednick != self._nickname:
                 self.msg('NICKSERV', 'GHOST %s %s' % (preferednick, self._nickpass))
