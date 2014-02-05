@@ -22,7 +22,9 @@ class admin(object):
         with open(self.adminfile, 'r') as f:
             data = f.read()
         with open(self.adminfile, 'w') as f:
-            self._admins = data.lower().replace(" ",'').split(',')
+            data = data.lower().replace(" ",'')
+            data = data.replace("\n",'').replace("\r",'')
+            self._admins = data.split(',')
             f.write(', '.join(self._admins))
 
     def _save(self):
