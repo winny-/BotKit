@@ -78,7 +78,7 @@ class BotKit(object):
             irc_unencrypted = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self._sock = ssl.wrap_socket(irc_unencrypted)
             self._sock.connect((self._host, self._port))
-            self.logger.info("Using ssl")
+            self.logger.info("Socket opened using ssl")
         else:
             self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self._sock.connect((self._host, self._port))
