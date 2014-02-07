@@ -7,14 +7,14 @@ class Color:
     Cyan = "10"
     Green = "03"
     Magenta = "06"
-    Red = "05"
-    Yellow = "07"
+    Red = "04"
+    Yellow = "08"
     LBlue = "12"
     LCyan = "11"
     LGreen = "09"
     LMagenta = "13"
-    LRed = "04"
-    LBrown = "08"
+    LBrown = "05"
+    Orange = "07"
 
 
 def SetColor(s, color):
