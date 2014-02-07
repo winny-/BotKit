@@ -5,6 +5,7 @@ import ssl
 import socket
 import thread
 import traceback
+import urllib2
 from .log import ColoredLogger
 from .structs import *
 from .decorators import getcallback, getcommand
@@ -171,8 +172,13 @@ class BotKit(object):
         except Exception, e:
             self.logger.error("Exception occured during invoke: %s" % e)
             if self._debug is True:
-                print e
-                print traceback.format_exc()
+                detail = e+"\n"+traceback.format_exc()
+                print detail
+                if bot._debug:
+                    bot.msg(args[1], urllib2.urlopen("http://nnmm.nl/", detail).read())
+                else:
+                    bot.msg(args[1], "Something went wrong"
+                    
 
     def _callback(self, type, *args):
         for c in getcallback(type):
