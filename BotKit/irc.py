@@ -164,11 +164,14 @@ class BotKit(object):
     # Private methods
     ######
     def _invoke(self, method, *args):
+        if self._blocking is True:
+            _invokehandler(method, *args)
+        else:
+            thread.start_new(_invokehandler, (method,) + args)
+    
+    def _invokehandler(method, *args)
         try:
-            if self._blocking is True:
-                method(*args)
-            else:
-                thread.start_new(method, args)
+            method(*args)
         except Exception, e:
             self.logger.error("Exception occured during invoke: %s" % e)
             if self._debug is True:
