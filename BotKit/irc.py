@@ -165,9 +165,9 @@ class BotKit(object):
     ######
     def _invoke(self, method, *args):
         if self._blocking is True:
-            _invokehandler(method, *args)
+            self._invokehandler(method, *args)
         else:
-            thread.start_new(_invokehandler, (method,) + args)
+            thread.start_new(self._invokehandler, (method,) + args)
     
     def _invokehandler(method, *args):
         try:
