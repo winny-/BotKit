@@ -169,7 +169,7 @@ class BotKit(object):
         else:
             thread.start_new(self._invokehandler, (method,) + args)
     
-    def _invokehandler(method, *args):
+    def _invokehandler(self, method, *args):
         try:
             method(*args)
         except Exception, e:
