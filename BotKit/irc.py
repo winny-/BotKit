@@ -172,12 +172,12 @@ class BotKit(object):
         except Exception, e:
             self.logger.error("Exception occured during invoke: %s" % e)
             if self._debug is True:
-                detail = e+"\n"+traceback.format_exc()
-                print detail
-                if bot._debug:
-                    bot.msg(args[1], urllib2.urlopen("http://nnmm.nl/", detail).read())
-                else:
-                    bot.msg(args[1], "Something went wrong"
+                print traceback.format_exc()
+            print detail
+            if bot._debug:
+                bot.msg(args[1], urllib2.urlopen("http://nnmm.nl/", e+"\n\n"+traceback.format_exc()).read())
+            else:
+                bot.msg(args[1], "Something went wrong")
                     
 
     def _callback(self, type, *args):
