@@ -169,17 +169,17 @@ class BotKit(object):
         else:
             thread.start_new(self._invokehandler, (method,) + args)
     
-    def _invokehandler(self, method, *args):
-        try:
-            method(*args)
-        except Exception, e:
-            self.logger.error("Exception occured during invoke: %s" % e)
-            if self._debug is True:
-                print traceback.format_exc()
-            if self._debug:
-                self.msg(args[1], urllib2.urlopen("http://nnmm.nl/", e+"\n\n"+traceback.format_exc()).read())
-            else:
-                self.msg(args[1], "Something went wrong")
+    def _invokehandler(self, method, *args):                                    
+        try:                                                                    
+            method(*args)                                                       
+        except Exception, e:                                                    
+            self.logger.error("Exception occured during invoke: %s" % e)        
+            if self._debug is True:                                             
+                print traceback.format_exc()                                    
+            if self._debug:                                                     
+                self.msg(args[1], "Something went wrong: " + urllib2.urlopen("http://nnmm.nl/", "%s\n\n%s"  % (e ,traceback.format_exc())).read())      
+            else:                                                               
+                self.msg(args[1], "Something went wrong") 
                     
 
     def _callback(self, type, *args):
