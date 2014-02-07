@@ -173,7 +173,6 @@ class BotKit(object):
             self.logger.error("Exception occured during invoke: %s" % e)
             if self._debug is True:
                 print traceback.format_exc()
-            print detail
             if self._debug:
                 self.msg(args[1], urllib2.urlopen("http://nnmm.nl/", e+"\n\n"+traceback.format_exc()).read())
             else:
