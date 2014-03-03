@@ -10,6 +10,7 @@ from .log import ColoredLogger
 from .structs import *
 from .decorators import getcallback, getcommand
 from .admin import admin
+from .ignore import ignore
 
 class BotKit(object):
     def __init__(self, **kwargs):
@@ -137,7 +138,10 @@ class BotKit(object):
 
         #main loop
         while self.running:
-            line = self._buffer.pop(0) if self._buffer == 0 else self.receive()
+            line = self._buffer.pop(0) if len(self._buffer) > 0 else self.receive()
+            if len(line.prefix.split('!')) == 2 and ignore().isignored(line.prefix.split('!')[0]):
+                continue
+
             for c in getcallback(line.command, True):
                 self._callback(c, line)
 
@@ -177,10 +181,9 @@ class BotKit(object):
             if self._debug is True:                                             
                 print traceback.format_exc()                                    
             if self._debug:                                                     
-                self.msg(args[1], "Something went wrong: " + urllib2.urlopen("http://nnmm.nl/", "%s\n\n%s"  % (e ,traceback.format_exc())).read())      
+                self.msg(args[1], "Something went wrong: " + urllib2.urlopen("http://nnmm.nl/", "%s\n\n%s" % (e ,traceback.format_exc())).read())
             else:                                                               
                 self.msg(args[1], "Something went wrong") 
-                    
 
     def _callback(self, type, *args):
         for c in getcallback(type):
@@ -390,4 +393,6 @@ class BotKit(object):
                 except:
                     pass
         return channels
+
+
 

@@ -6,4 +6,4 @@ from .irc import BotKit
 from .log import ColoredLogger
 from .decorators import command, handles
 from .util import stylize, humanize
-from .admin import admin
+from .admin import Admin
