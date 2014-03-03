@@ -6,7 +6,7 @@
 from BotKit import *
 
 irc = BotKit(
-    nickname="travis_botkit",
+    nickname="botkit_test",
     channels="#/g/spam",
     host="irc.rizon.net",
     port=9999,
@@ -51,4 +51,10 @@ def parse(bot, channel, user, args):
 def blah(bot, channel, user, args):
     bot.msg(channel, "%s: BLAH!" % user)
 
-irc.run()
+@command('ignore', True)
+def ign(bot, channel, user, args):
+    ignore().add(args.split()[0])
+    bot.msg(channel, "Now ignoring %s" % args.split()[0])
+
+
+#irc.run()
