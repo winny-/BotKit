@@ -21,8 +21,9 @@ class admin(object):
         exists = ospath.isfile(self.adminfile)
 
         data = ""
-        with open(self.adminfile, 'r') as f:
-            data = f.read()
+        if exists:
+            with open(self.adminfile, 'r') as f:
+                data = f.read()
         with open(self.adminfile, 'w') as f:
             data = data.lower().replace(" ",'')
             data = data.replace("\n",'').replace("\r",'')

@@ -19,8 +19,9 @@ class ignore(object):
         exists = ospath.isfile(self.ignoredfile)
 
         data = ""
-        with open(self.ignoredfile, 'r') as f:
-            data = f.read()
+        if exists:
+            with open(self.ignoredfile, 'r') as f:
+                data = f.read()
         with open(self.ignoredfile, 'w') as f:
             data = data.lower().replace(" ",'')
             data = data.replace("\n",'').replace("\r",'')
