@@ -391,22 +391,3 @@ class BotKit(object):
                     pass
         return channels
 
-    #####
-    # usefull and TODO remove
-    #####
-    def SetMore(self, text):
-        """
-        @todo migrate
-        @param text:
-        """
-        self._more = text
-
-    def GetMore(self):
-        """
-        @todo: migrate
-        @return: stored more text
-        @rtype: str
-        """
-        ret = self._more
-        self._more = ""
-        return ret
