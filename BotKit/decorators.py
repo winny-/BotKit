@@ -21,7 +21,7 @@ def command(name, restricted=False):
         })
     return decorator
 
-def handles(type, raw=False):
+def handles(ctype, raw=False):
     """
     Supported types (non-raw):
         cctp_*; (bot, user, arguments),
@@ -38,17 +38,19 @@ def handles(type, raw=False):
     @type type: str
     @param type: The irc command type.
     @type raw: bool
-    @param raw: If set to True the decorator will create a callback for a raw irc command. Callback type: parse(bot, message)
+    @param raw: If set to True the decorator will do a callback for the parsed line. Callback type: parse(bot, message)
     @return: decorator
     """
     global _callbacks
+
     def decorator(f):
         _callbacks.append({
-            "type": type,
+            "type": ctype,
             "method": f,
             "raw": raw
         })
     return decorator
+
 
 def getcommand(name):
     """
@@ -62,6 +64,7 @@ def getcommand(name):
     global _commands
     return [c for c in _commands if c['command'] == name.lower()]
 
+
 def getcallback(name, raw=False):
     """
     returns the requested callback
@@ -71,7 +74,7 @@ def getcallback(name, raw=False):
     @type raw: bool
     @param raw:
     @return: method
-    @rtype: object
+    @rtype: list
     """
     global _callbacks
     return [c['method'] for c in _callbacks if c['type'] == name.lower() and c['raw'] == raw]

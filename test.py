@@ -41,7 +41,7 @@ def parse(bot, channel, user, args):
 
 @command('remadmin', True)
 def parse(bot, channel, user, args):
-    usr =args.split()[0]
+    usr = args.split()[0]
     if usr.lower() == user.lower():
         bot.msg(channel, 'lol okay')
 

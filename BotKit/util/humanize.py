@@ -1,9 +1,10 @@
 import re
 
+
 def sizefmt(num):
-    for x in ['bytes','KB','MB','GB']:
-        if num < 1024.0 and num > -1024.0:
-            return "%3.1f%s" % (num, x)
+    for size in ['bytes', 'KB', 'MB', 'GB']:
+        if 1024.0 > num > -1024.0:
+            return "%3.1f%s" % (num, size)
         num /= 1024.0
     return "%3.1f%s" % (num, 'TB')
 
@@ -27,6 +28,8 @@ powers = [10 ** x for x in (6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 100)]
 human_powers = ['million', 'billion', 'trillion', 'quadrillion',
                 'quintillion', 'sextillion', 'septillion',
                 'octillion', 'nonillion', 'decillion', 'googol']
+
+
 def intword(value, format='%.1f'):
     try:
         value = int(value)

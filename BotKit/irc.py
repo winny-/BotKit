@@ -160,7 +160,6 @@ class BotKit(object):
                         cmd = line.trailing[1:].split()[0]
                         self._command(cmd, channel, user, line.trailing[2+len(cmd):])
             elif line.command == 'INVITE':
-                arg = line.arguments.split()
                 self._callback('invite', line.trailing, line.prefix.split('!')[0])
 
 
@@ -185,8 +184,8 @@ class BotKit(object):
             else:                                                               
                 self.msg(args[1], "Something went wrong") 
 
-    def _callback(self, type, *args):
-        for c in getcallback(type):
+    def _callback(self, ctype, *args):
+        for c in getcallback(ctype):
             self._invoke(c, self, *args)
 
     def _command(self, cmd, *args):
@@ -373,6 +372,7 @@ class BotKit(object):
             match.group(5)
         )
 
+    # noinspection PyBroadException
     def list(self):
         """
         @todo: Redo function, implement buffer
