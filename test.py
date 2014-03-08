@@ -13,17 +13,20 @@ irc = BotKit(
     ssl=True
 )
 
+
 @handles('msg')
 def parse(bot, channel, user, msg):
-    pass #dummy
+    pass  # dummy
+
 
 @command('test')
 def parse(bot, channel, user, msg):
-    pass #dummy
+    pass  # dummy
+
 
 @command('addadmin', True)
 def parse(bot, channel, user, args):
-    usr =args.split()[0]
+    usr = args.split()[0]
     if admin().isadmin(usr):
         bot.msg(channel, "%s: %s is already an admin" % (user, usr))
     else:
@@ -33,13 +36,14 @@ def parse(bot, channel, user, args):
 
 @command('admins')
 def parse(bot, channel, user, args):
-    bot.msg(channel, "%s: %s" %(user, ', '.join(admin().getadmins())))
+    bot.msg(channel, "%s: %s" % (user, ', '.join(admin().getadmins())))
+
 
 @command('remadmin', True)
 def parse(bot, channel, user, args):
     usr =args.split()[0]
     if usr.lower() == user.lower():
-        bot.msg(channel, 'lol okay');
+        bot.msg(channel, 'lol okay')
 
     if admin().isadmin(usr):
         admin().removeadmin(usr)
@@ -47,9 +51,11 @@ def parse(bot, channel, user, args):
     else:
         bot.msg(channel, "%s: %s was never an admin" % (user, usr))
 
+
 @command('blah', True)
 def blah(bot, channel, user, args):
     bot.msg(channel, "%s: BLAH!" % user)
+
 
 @command('ignore', True)
 def ign(bot, channel, user, args):
