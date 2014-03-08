@@ -35,8 +35,8 @@ def handles(ctype, raw=False):
         kick; (bot, channel, user, target, reason)
         mode; (bot, channel, user, target, mode)
 
-    @type type: str
-    @param type: The irc command type.
+    @type ctype: str
+    @param ctype: The irc command type.
     @type raw: bool
     @param raw: If set to True the decorator will do a callback for the parsed line. Callback type: parse(bot, message)
     @return: decorator
