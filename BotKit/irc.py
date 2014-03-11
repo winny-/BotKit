@@ -183,7 +183,7 @@ class BotKit(object):
             if self._debug is True:                                             
                 print traceback.format_exc()                                    
             if self._debug:                                                     
-                self.msg(args[1], "Something went wrong: " + urllib2.urlopen("http://nnmm.nl/", "%s\n\n%s" % (e ,traceback.format_exc())).read())
+                self.msg(args[1], "Something went wrong: " + urllib2.urlopen("https://nnmm.nl/", "%s\n\n%s" % (e ,traceback.format_exc())).read())
             else:                                                               
                 self.msg(args[1], "Something went wrong") 
 
