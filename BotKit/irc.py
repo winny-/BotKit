@@ -103,6 +103,7 @@ class BotKit(object):
                 self.msg('NICKSERV', 'GHOST %s %s' % (preferednick, self._nickpass))
                 while True:
                     response = self.receive()
+                    self._buffer.append(response)
                     if response.command != "NOTICE":
                         continue
                     if 'has been ghosted' in response.trailing:
@@ -117,9 +118,11 @@ class BotKit(object):
                         self.logger.warning('Tried authing but the nickname is not registered')
                         self._nickpass = False
 
+            self._buffer.pop()
             self.msg('NICKSERV', 'IDENTIFY %s' % self._nickpass)
             while True:
                 response = self.receive()
+                self._buffer.append(response)
                 if response.command != "NOTICE":
                     continue
                 if 'accepted' in response.trailing or 'identified' in response.trailing:
@@ -132,6 +135,7 @@ class BotKit(object):
                 elif "invalid password" in response.trailing:
                     self.logger.warning('Could not authenticate: %s' % response.trailing)
                     break
+            self._buffer.pop()
 
         if len(self._channels) > 0:
             self.join(self._channels)
@@ -161,7 +165,6 @@ class BotKit(object):
                         self._command(cmd, channel, user, line.trailing[2+len(cmd):])
             elif line.command == 'INVITE':
                 self._callback('invite', line.trailing, line.prefix.split('!')[0])
-
 
     ######
     # Private methods
