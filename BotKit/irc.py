@@ -163,7 +163,7 @@ class BotKit(object):
                     self._callback('msg', channel, user, line.trailing)
                     if line.trailing[0] == self._prefix:
                         cmd = line.trailing[1:].split()[0]
-                        self._command(cmd, channel, user, line.trailing[2+len(cmd):])
+                        self._command(cmd, channel, channel, user, line.trailing[2+len(cmd):])
             elif line.command == 'INVITE':
                 self._callback('invite', line.trailing, line.prefix.split('!')[0])
 
