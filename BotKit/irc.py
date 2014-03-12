@@ -158,12 +158,12 @@ class BotKit(object):
                     cmd = line.trailing[1:-1].split()[0].lower()
                     args = line.trailing[2+len(cmd):-1]
                     self.logger.info("Got CTCP request from %s: %s" % (user, cmd))
-                    self._callback('ctcp_'+cmd, user, args)
+                    self._callback('ctcp_'+cmd, channel, user, args)
                 else:
                     self._callback('msg', channel, user, line.trailing)
                     if line.trailing[0] == self._prefix:
                         cmd = line.trailing[1:].split()[0]
-                        self._command(cmd, channel, channel, user, line.trailing[2+len(cmd):])
+                        self._command(cmd, channel, user, line.trailing[2+len(cmd):])
             elif line.command == 'INVITE':
                 self._callback('invite', line.trailing, line.prefix.split('!')[0])
 
