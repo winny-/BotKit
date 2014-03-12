@@ -157,6 +157,7 @@ class BotKit(object):
                 if line.trailing[-1] == "\001" and line.trailing[0] == "\001":
                     cmd = line.trailing[1:-1].split()[0].lower()
                     args = line.trailing[2+len(cmd):-1]
+                    self.logger.info("Got CTCP request from %s: %s" % (user, cmd))
                     self._callback('ctcp_'+cmd, user, args)
                 else:
                     self._callback('msg', channel, user, line.trailing)
