@@ -117,8 +117,8 @@ class BotKit(object):
                     elif "Your nick isn't registered" in response.trailing:
                         self.logger.warning('Tried authing but the nickname is not registered')
                         self._nickpass = False
-
-            self._buffer.pop()
+                self._buffer.pop()
+                
             self.msg('NICKSERV', 'IDENTIFY %s' % self._nickpass)
             while True:
                 response = self.receive()
