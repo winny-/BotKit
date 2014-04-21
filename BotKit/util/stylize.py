@@ -36,5 +36,8 @@ def Underline(s):
     return "\x15%s\x0f" % s
 
 
-def Trunicate(s, l=30, append="..."):
+def Truncate(s, l=30, append="..."):
     return s[:l].rsplit(' ', 1)[0]+append if len(s) > l else s
+
+# Backwards compatibility with v2 and earlier.
+Trunicate = Truncate
